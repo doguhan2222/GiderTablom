@@ -1,7 +1,7 @@
 package com.sedogapps.gidertablom.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,23 +9,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,30 +36,54 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.sedogapps.gidertablom.R
+import com.sedogapps.gidertablom.components.CategorizedLazyColumn
 import com.sedogapps.gidertablom.components.CircularImage
 import com.sedogapps.gidertablom.components.ListItemWithCard
-import com.sedogapps.gidertablom.names
+import com.sedogapps.gidertablom.model.CategoryListview
 import com.sedogapps.gidertablom.ui.theme.CardColor
 import com.sedogapps.gidertablom.ui.theme.CategorizedLazyColumnTheme
+import com.sedogapps.gidertablom.viewmodel.HomePageViewModel
+
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-@Preview
-fun HomePage() {
+fun HomePage(navController: NavHostController,viewModel: HomePageViewModel = hiltViewModel()) {
 
     val items2 = listOf("Today", "This Week", "This Month", "Calender")
     var selectedItem by remember { mutableStateOf<String?>("Today") }
-    val namesList = names.map {
 
-        Category(
-            name = it.key.toString(),
-            items = it.value
-        )
+
+    var expenseListWithCategory by remember { mutableStateOf(emptyList<CategoryListview>()) }
+    LaunchedEffect(viewModel) {
+        viewModel.getAllList()
     }
+    val expenses by viewModel.expensesWithCategoriesList.observeAsState(emptyList())
+
+    expenseListWithCategory = expenses
+
+    Log.d("homepage",expenseListWithCategory.toList().toString())
+
+//    val namesList = expenseListWithCategory.map {
+//
+//        CategoryListview2(
+//            categoryName = it.categoryName ,
+//            categoryExpenses = it.categoryExpenses
+//        )
+//    }
+
+
+//    val namesList = names.map {
+//
+//        CategoryListview(
+//            name = it.key.toString(),
+//            items = it.value
+//        )
+//    }
     Scaffold(
         topBar = {
             null
@@ -114,6 +137,7 @@ fun HomePage() {
                         onItemClick = { clickedItem ->
                             // Tıklanan öğe seçili öğe olarak ayarlanıyor
                             selectedItem = clickedItem
+
                         }
                     )
 
@@ -166,7 +190,7 @@ fun HomePage() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     CategorizedLazyColumn(
-                        categories = namesList
+                        categories = expenseListWithCategory
                     )
                 }
             }
@@ -175,67 +199,5 @@ fun HomePage() {
     }
 }
 
-data class Category(
-    val name: String,
-    val items: List<String>
-)
 
-@Composable
-private fun CategoryHeader(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Text(
-        text = text,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(16.dp)
-    )
-}
-
-@Composable
-private fun CategoryItem(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    Row {
-        Icon(
-            painter = painterResource(id = R.drawable.profile_pic),// Kullanmak istediğiniz ikon
-            tint = Color.Unspecified,
-            contentDescription = null, // Opsiyonel: Erişilebilirlik için içerik açıklaması
-            modifier = Modifier.size(55.dp) // Icon boyutunu ayarlayın
-        )
-        Text(
-            text = text,
-            fontSize = 14.sp,
-            modifier = modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp)
-        )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun CategorizedLazyColumn(
-    categories: List<Category>,
-    modifier: Modifier = Modifier.fillMaxHeight()
-) {
-    LazyColumn(
-        modifier = modifier
-    ) {
-        categories.forEach { category ->
-            stickyHeader {
-                CategoryHeader(category.name)
-            }
-            items(category.items) { text ->
-                CategoryItem(text)
-            }
-        }
-    }
-}
 

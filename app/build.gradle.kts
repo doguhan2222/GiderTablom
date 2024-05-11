@@ -1,7 +1,11 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("kotlin-kapt")
+    id ("com.google.dagger.hilt.android")
+
 }
+
 
 android {
     namespace = "com.sedogapps.gidertablom"
@@ -29,7 +33,9 @@ android {
             )
         }
     }
+
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -50,6 +56,7 @@ android {
 }
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -67,4 +74,32 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //Calander Widget
+    implementation("io.github.boguszpawlowski.composecalendar:composecalendar:1.2.0")
+    implementation("io.github.boguszpawlowski.composecalendar:kotlinx-datetime:1.2.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+
+    //Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation ("androidx.room:room-ktx:2.4.0")
+
+    //Hilt
+    implementation ("com.google.dagger:hilt-android:2.48")
+    kapt ("com.google.dagger:hilt-compiler:2.48")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
+    //Coroutines
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+
+    // ViewModel
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    // ViewModel utilities for Compose
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    // LiveData
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.6.7")
+
+}
+kapt {
+    correctErrorTypes =  true
 }
